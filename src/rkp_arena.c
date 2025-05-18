@@ -57,7 +57,7 @@ int termArena(Arena *arena) {
 	return 0;
 }
 
-int resetArena(Arena *arena) {
+int resetArena(Arena *arena) { // preserves last_block_size from pre-reset
 
 	Block *curr = arena->first_block;
 	Block *next = NULL;
@@ -109,7 +109,7 @@ void *palloc(Arena *arena, size_t size, size_t alignment) {
 		arena->next_free = (char *)last_block->data + size;
 		arena->next_free_size = new_block_size - size;
 
-		arena->bytes_used += size;
+		arena->bytes_used += size + padding;
 		arena->bytes_allocd += sizeof(Block) + new_block_size;
 
 		return last_block->data;

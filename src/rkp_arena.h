@@ -24,8 +24,8 @@ typedef struct s_Block {
 } Block;
 
 int initArena(Arena *arena);
-int resetArena(Arena *arena);
 int termArena(Arena *arena);
+int resetArena(Arena *arena);
 void *palloc(Arena *arena, size_t size, size_t alignment);
 void *pzalloc(Arena *arena, size_t size, size_t alignment);
 void *pGrowAlloc(void *ptr, size_t old_size, size_t new_size, Arena *arena);
