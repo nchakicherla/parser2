@@ -12,13 +12,13 @@ int main() {
 
     // test allocator
     printf("testing aligned arena...\n");
-    bool verbose = true;
+    bool verbose = false;
     int ret = 0;
 
     Arena a;
     initArena(&a);
     
-    #define BIG_NUM 3
+    #define BIG_NUM 30000
     double **arr1 = palloc(&a, BIG_NUM * sizeof(double *), alignof(double *));
     for (size_t i = 0; i < BIG_NUM; i++) {
         arr1[i] = NULL;
@@ -50,5 +50,12 @@ int main() {
     printf("arena reset...\n");
     printArenaInfo(&a);
     termArena(&a);
+
+    //test setting log_output_file
+    printf("testing setting rkp_error::log_output_file...\n");
+    printf("(%d) called rkp_error_set_log_file\n", rkp_error_set_log_file("test.txt"));
+    printf("testing closing rkp_error::log_output_file...\n");
+    printf("(%d) called rkp_error_close_log_file\n", rkp_error_close_log_file());
+
     return ret;
 }

@@ -4,6 +4,13 @@
 #include <stddef.h>
 
 typedef enum {
+	RKP_SEV_DEBUG,
+	RKP_SEV_INFO,
+	RKP_SEV_ERROR,
+	RKP_SEV_FATAL
+} RKPSeverity;
+
+typedef enum {
 	RKP_ERR_TYPE_NONE,
 	RKP_ERR_TYPE_ARG,
 	RKP_ERR_TYPE_IO,
@@ -20,13 +27,6 @@ typedef enum {
 	RKP_ERR_CTX_RUNTIME
 } RKPErrorContext;
 
-typedef enum {
-	RKP_SEV_DEBUG,
-	RKP_SEV_INFO,
-	RKP_SEV_ERROR,
-	RKP_SEV_FATAL
-} RKPSeverity;
-
 typedef struct {
 	RKPSeverity severity;
 	RKPErrorType type;
@@ -38,6 +38,7 @@ typedef struct {
 	int code;
 } Error;
 
-void rkp_error_test(void);
+int rkp_error_set_log_file(char *filename);
+int rkp_error_close_log_file(void);
 
 #endif
