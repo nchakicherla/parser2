@@ -9,9 +9,9 @@
 #define MEMORY_HOG_FACTOR 8
 #define DEF_BLOCK_SIZE 4096
 
-static Block *newInitBlock(size_t block_size) {
+static rkp_arena_block *newInitBlock(size_t block_size) {
 	
-	Block *block =  malloc(sizeof(Block));
+	rkp_arena_block *block =  malloc(sizeof(rkp_arena_block));
 	if(!block) {
 		fprintf(stderr, "block alloc failed! exiting...\n");
 		exit(1);
@@ -29,13 +29,13 @@ static Block *newInitBlock(size_t block_size) {
 	return block;
 }
 
-int initArena(Arena *arena) {
+int rkp_arena_init(rkp_arena *arena) {
 	size_t block_size = DEF_BLOCK_SIZE;
 
 	arena->first_block = newInitBlock(block_size);
 
 	arena->bytes_used = 0;
-	arena->bytes_allocd = sizeof(Arena) + sizeof(Block) + block_size;
+	arena->bytes_allocd = sizeof(rkp_arena) + sizeof(rkp_arena_block) + block_size;
 	arena->next_free = arena->first_block->data;
 	arena->next_free_size = arena->first_block->data_size;
 	arena->last_block_size = block_size;
@@ -43,10 +43,10 @@ int initArena(Arena *arena) {
 	return 0;
 }
 
-int termArena(Arena *arena) {
+int rkp_arena_term(rkp_arena *arena) {
 
-	Block *curr = arena->first_block;
-	Block *next = NULL;
+	rkp_arena_block *curr = arena->first_block;
+	rkp_arena_block *next = NULL;
 
 	while(curr) {
 		next = curr->next;
@@ -57,10 +57,10 @@ int termArena(Arena *arena) {
 	return 0;
 }
 
-int resetArena(Arena *arena) { // preserves last_block_size from pre-reset
+int rkp_arena_reset(rkp_arena *arena) { // preserves last_block_size from pre-reset
 
-	Block *curr = arena->first_block;
-	Block *next = NULL;
+	rkp_arena_block *curr = arena->first_block;
+	rkp_arena_block *next = NULL;
 
 	while(curr) {
 		next = curr->next;
@@ -76,11 +76,11 @@ int resetArena(Arena *arena) { // preserves last_block_size from pre-reset
 	arena->next_free_size = arena->first_block->data_size;
 
 	arena->bytes_used = 0;
-	arena->bytes_allocd = sizeof(Arena) + sizeof(Block) + arena->last_block_size;
+	arena->bytes_allocd = sizeof(rkp_arena) + sizeof(rkp_arena_block) + arena->last_block_size;
 	return 0;
 }
 
-void *palloc(Arena *arena, size_t size, size_t alignment) {
+void *rkp_arena_alloc(rkp_arena *arena, size_t size, size_t alignment) {
 	
 	// bump up per alignment
 	size_t current = (size_t)arena->next_free;
@@ -88,8 +88,8 @@ void *palloc(Arena *arena, size_t size, size_t alignment) {
 	size_t padding = aligned - current;
 
 	if(arena->next_free_size < size + padding) {
-		Block *last_block = arena->last_block;
-		Block *new_block = NULL;
+		rkp_arena_block *last_block = arena->last_block;
+		rkp_arena_block *new_block = NULL;
 
 		size_t new_block_size = arena->last_block_size;
 
@@ -110,7 +110,7 @@ void *palloc(Arena *arena, size_t size, size_t alignment) {
 		arena->next_free_size = new_block_size - size;
 
 		arena->bytes_used += size + padding;
-		arena->bytes_allocd += sizeof(Block) + new_block_size;
+		arena->bytes_allocd += sizeof(rkp_arena_block) + new_block_size;
 
 		return last_block->data;
 	}
@@ -124,26 +124,26 @@ void *palloc(Arena *arena, size_t size, size_t alignment) {
 	return output;
 }
 
-void *pzalloc(Arena *arena, size_t size, size_t alignment) {
-	void* output = palloc(arena, size, alignment);
+void *rkp_arena_zalloc(rkp_arena *arena, size_t size, size_t alignment) {
+	void* output = rkp_arena_alloc(arena, size, alignment);
 	for(size_t i = 0; i < size; i++) {
 		((char *)output)[i] = '\0';
 	}
 	return output;
 }
 
-void *pGrowAlloc(void *ptr, size_t old_size, size_t new_size, Arena *arena) {
-	void *output_ptr = palloc(arena, new_size, 32); // use default alignment of 32
+void *rkp_arena_grow_alloc(void *ptr, size_t old_size, size_t new_size, rkp_arena *arena) {
+	void *output_ptr = rkp_arena_alloc(arena, new_size, 32); // use default alignment of 32
 	memcpy(output_ptr, ptr, old_size);
 	return output_ptr;
 }
 
-char *pNewStr(char *str, Arena *arena) {
+char *rkp_arena_new_str(char *str, rkp_arena *arena) {
 	
 	char *output = NULL;
 	size_t len = strlen(str);
 
-	output = palloc(arena, len + 1, alignof(char));
+	output = rkp_arena_alloc(arena, len + 1, alignof(char));
 
 	for(size_t i = 0; i < len; i++) {
 		output[i] = str[i];
@@ -152,17 +152,17 @@ char *pNewStr(char *str, Arena *arena) {
 	return output;
 }
 
-size_t getBytesUsed(Arena *arena) {
+size_t rkp_arena_get_bytes_used(rkp_arena *arena) {
 	return arena->bytes_used;
 }
 
-size_t getBytesAllocd(Arena *arena) {
+size_t rkp_arena_get_bytes_allocd(rkp_arena *arena) {
 	return arena->bytes_allocd;
 }
 
-void printArenaInfo(Arena *arena) {
+void rkp_arena_print_info(rkp_arena *arena) {
 	printf("\nMEMPOOL INFO - \n");
-	printf("\tUSED: %zu, (%f MB)\n", getBytesUsed(arena), (double)getBytesUsed(arena) / (1024 * 1024));
-	printf("\tALLOCD: %zu, (%f MB)\n", getBytesAllocd(arena), (double)getBytesAllocd(arena) / (1024 * 1024));
+	printf("\tUSED: %zu, (%f MB)\n", rkp_arena_get_bytes_used(arena), (double)rkp_arena_get_bytes_used(arena) / (1024 * 1024));
+	printf("\tALLOCD: %zu, (%f MB)\n", rkp_arena_get_bytes_allocd(arena), (double)rkp_arena_get_bytes_allocd(arena) / (1024 * 1024));
 	return;
 }

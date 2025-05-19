@@ -15,16 +15,16 @@ int main() {
     bool verbose = false;
     int ret = 0;
 
-    Arena a;
-    initArena(&a);
+    rkp_arena a;
+    rkp_arena_init(&a);
     
     #define BIG_NUM 30000
-    double **arr1 = palloc(&a, BIG_NUM * sizeof(double *), alignof(double *));
+    double **arr1 = rkp_arena_alloc(&a, BIG_NUM * sizeof(double *), alignof(double *));
     for (size_t i = 0; i < BIG_NUM; i++) {
         arr1[i] = NULL;
-        arr1[i] = palloc(&a, sizeof(double), alignof(double));
+        arr1[i] = rkp_arena_alloc(&a, sizeof(double), alignof(double));
         if(!arr1[i]) {
-            printf("palloc failed...\n");
+            printf("rkp_arena_alloc failed...\n");
             ret = 1;
             break;
         }
@@ -35,7 +35,7 @@ int main() {
     }
 
     // test zeroing function
-    char *arr2 = pzalloc(&a, BIG_NUM * 17, alignof(char));
+    char *arr2 = rkp_arena_zalloc(&a, BIG_NUM * 17, alignof(char));
     for (size_t i = 0; i < BIG_NUM * 17; i++) {
         arr2[i] = 'c';
         if(verbose) {
@@ -44,12 +44,12 @@ int main() {
     }
     printf("\n");
 
-    printArenaInfo(&a);
+    rkp_arena_print_info(&a);
     printf("resetting arena...\n");
-    resetArena(&a);
+    rkp_arena_reset(&a);
     printf("arena reset...\n");
-    printArenaInfo(&a);
-    termArena(&a);
+    rkp_arena_print_info(&a);
+    rkp_arena_term(&a);
 
     //test setting log_output_file
     printf("testing setting rkp_error::log_output_file...\n");
