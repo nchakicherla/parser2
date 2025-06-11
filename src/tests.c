@@ -51,10 +51,10 @@ int main() {
     rkp_arena_print_info(&a);
     rkp_arena_term(&a);
 
-    //test setting log_output_file
-    printf("testing setting rkp_error::log_output_file...\n");
-    printf("(%d) called rkp_error_set_log_file\n", rkp_error_set_log_file("test.txt"));
-    printf("testing closing rkp_error::log_output_file...\n");
+    //test setting log_file_ptr
+    printf("testing setting rkp_error::log_file_ptr...\n");
+    printf("(%d) called rkp_error_open_log_file\n", rkp_error_open_log_file("test.txt"));
+    printf("testing closing rkp_error::log_file_ptr...\n");
     printf("(%d) called rkp_error_close_log_file\n", rkp_error_close_log_file());
 
     return ret;

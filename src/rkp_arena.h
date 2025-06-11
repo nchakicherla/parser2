@@ -2,7 +2,6 @@
 #define RKP_ARENA_H
 
 #include <stdlib.h>
-#include <string.h>
 
 struct s_rkp_arena_block;
 
@@ -29,7 +28,7 @@ int rkp_arena_reset(rkp_arena *arena);
 void *rkp_arena_alloc(rkp_arena *arena, size_t size, size_t alignment);
 void *rkp_arena_zalloc(rkp_arena *arena, size_t size, size_t alignment);
 void *rkp_arena_grow_alloc(void *ptr, size_t old_size, size_t new_size, rkp_arena *arena);
-char *rkp_arena_new_str(char *str, rkp_arena *arena);
+char *rkp_arena_new_str(rkp_arena *arena, const char *str);
 size_t rkp_arena_get_bytes_used(rkp_arena *arena);
 size_t rkp_arena_get_bytes_allocd(rkp_arena *arena);
 void rkp_arena_print_info(rkp_arena *arena);

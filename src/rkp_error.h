@@ -5,10 +5,10 @@
 #include <inttypes.h>
 
 typedef enum { // ultimately determined by flags but general conventions provided
-	RKP_SEV_DEBUG, // stderr, log
-	RKP_SEV_INFO, // stdout, log
-	RKP_SEV_ERROR, // stderr, stdout, log
-	RKP_SEV_FATAL // stderr, stdout, log
+	RKP_ERR_SEV_DEBUG, // stderr, log
+	RKP_ERR_SEV_INFO, // stdout, log
+	RKP_ERR_SEV_ERROR, // stderr, stdout, log
+	RKP_ERR_SEV_FATAL // stderr, stdout, log
 } e_rkp_error_severity;
 
 typedef enum {
@@ -38,18 +38,18 @@ typedef enum {
 } e_rkp_error_flags;
 
 typedef struct s_rkp_error {
-	e_rkp_error_severity severity;
-	e_rkp_error_type type;
-	e_rkp_error_context context;
-	const char *msg;
-	const char *file;
+	e_rkp_error_severity 	severity;
+	e_rkp_error_type 		type;
+	e_rkp_error_context 	context;
+	const char 				*msg;
+	const char 				*file;
 	size_t line;
 	size_t column;
 	int code;
 	uint32_t flags;
 } rkp_error;
 
-int rkp_error_set_log_file(char *filename);
+int rkp_error_open_log_file(char *filename);
 int rkp_error_close_log_file(void);
 
 #endif

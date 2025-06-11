@@ -5,6 +5,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdalign.h>
+#include <string.h>
 
 #define MEMORY_HOG_FACTOR 8
 #define DEF_BLOCK_SIZE 4096
@@ -138,16 +139,18 @@ void *rkp_arena_grow_alloc(void *ptr, size_t old_size, size_t new_size, rkp_aren
 	return output_ptr;
 }
 
-char *rkp_arena_new_str(char *str, rkp_arena *arena) {
+char *rkp_arena_new_str(rkp_arena *arena, const char *str) {
 	
 	char *output = NULL;
 	size_t len = strlen(str);
 
 	output = rkp_arena_alloc(arena, len + 1, alignof(char));
-
+	/*
 	for(size_t i = 0; i < len; i++) {
 		output[i] = str[i];
 	}
+	*/
+	memcpy(output, str, len);
 	output[len] = '\0';
 	return output;
 }
